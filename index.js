@@ -24,7 +24,7 @@ async function run() {
     await client.connect();
     const database = client.db("transcrew");
     const serviceCollection = database.collection("services");
-
+    const orderCollection = database.collection("orders");
     // get all services bye GET Method
     app.get("/services", async (req, res) => {
       const cursor = serviceCollection.find({});
@@ -32,7 +32,7 @@ async function run() {
       res.send(services);
     });
 
-    // get all services bye GET Method
+    // get every single service by POST
     app.get("/services/:id", async (req, res) => {
       const id = req.params.id;
       const filter = { _id: ObjectId(id) };
@@ -47,16 +47,44 @@ async function run() {
 
       res.json(result);
     });
+
+    // Order collection
+    // post orders details
+    app.post("/orders", async (req, res) => {
+      const order = req.body;
+      const result = await orderCollection.insertOne(order);
+
+      res.send(result);
+    });
+
+    // GET Orders
+    app.get("/orders", async (req, res) => {
+      const cursor = orderCollection.find({});
+      const orders = await cursor.toArray();
+      res.send(orders);
+    });
+
+    // DELETE Order
+    app.delete("/orders/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await orderCollection.deleteOne(query);
+      res.json(result);
+    });
   } finally {
     // client.close();
   }
 }
+// call run function
 run().catch(console.dir());
+
+// GET request at the root directory
 app.get("/", (req, res) => {
   res.send("Transcrew server is running");
   console.log("transcrew server is running");
 });
 
+// Hey app listen please
 app.listen(port, () => {
   console.log(`Server is running at port : http://localhost:${port}`);
 });
