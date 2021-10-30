@@ -19,15 +19,24 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
+    // connect with mongo
     await client.connect();
     const database = client.db("transcrew");
     const serviceCollection = database.collection("services");
 
-    // get all users bye GET Method
+    // get all services bye GET Method
     app.get("/services", async (req, res) => {
       const cursor = serviceCollection.find({});
       const services = await cursor.toArray();
       res.send(services);
+    });
+
+    // POST services
+    app.post("/services", async (req, res) => {
+      const newService = req.body;
+      const result = await serviceCollection.insertOne(newService);
+
+      res.json(result);
     });
   } finally {
     // client.close();
