@@ -59,7 +59,13 @@ async function run() {
 
     // GET Orders
     app.get("/orders", async (req, res) => {
-      const cursor = orderCollection.find({});
+      const email = req.query.email;
+      let filter = {};
+      if (email) {
+        filter = { userEmail: email };
+      }
+
+      const cursor = orderCollection.find(filter);
       const orders = await cursor.toArray();
       res.send(orders);
     });
